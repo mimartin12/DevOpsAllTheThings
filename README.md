@@ -1,5 +1,8 @@
 # DevOps All The Things
 
+[![Container Main CI/CD](https://github.com/mimartin12/DevOpsAllTheThings/actions/workflows/container-ci-cd.yml/badge.svg)](https://github.com/mimartin12/DevOpsAllTheThings/actions/workflows/container-ci-cd.yml) [![Terraform CI](https://github.com/mimartin12/DevOpsAllTheThings/actions/workflows/terraform-ci.yml/badge.svg)](https://github.com/mimartin12/DevOpsAllTheThings/actions/workflows/terraform-ci.yml)
+
+
 ## About <a name = "about"></a>
 
 Just a repo to showcase and test various DevOps things and tools.
