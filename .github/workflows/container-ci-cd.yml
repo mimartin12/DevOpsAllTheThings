@@ -1,0 +1,73 @@
+name: Container Main CI/CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+
+  build:
+    name:  Build and scan litecoin container
+
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Build Litecoin container
+      uses: docker/build-push-action@v2
+      with:
+        tags: ${{secrets.DOCKERHUB_USER}}/ltccore:${{github.sha}}
+        push: false
+        load: true
+
+    - name: Scan Litecoin container
+      uses: anchore/scan-action@v2
+      with:
+        image: "${{secrets.DOCKERHUB_USER}}/ltccore:${{github.sha}}"
+        fail-build: true
+        severity-cutoff: high
+
+    - name: Login to DockerHub and push newest version
+      run: |
+        echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
+    - name: Push to DockerHub
+      run: docker push ${{secrets.DOCKERHUB_USER}}/ltccore:${{github.sha}}
+
+  deploy:
+
+    name:  Deploy litecoin container to K8s
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v2
+
+      # Update image in Kubernetes manifest
+      - name: Text Manipulation / Update Kubernetes manifest with the newest image
+        uses: mikefarah/yq@v4.12.1
+        with: 
+          cmd: yq e -i '.spec.template.spec.containers[].image="${{secrets.DOCKERHUB_USER}}/ltccore:${{github.sha}}"' litecoin.statefulset.yaml
+    
+      - uses: nolar/setup-k3d-k3s@v1
+        name: Deploy to K8s (k3d)
+        with:
+          k3d-args: --servers 1 --agents 1 --no-lb
+      - run: |
+          kubectl config use-context k3d-k3s-default
+          kubectl apply -f .
+      
+      - name: Dump Deployment Information
+        run: |
+          export BREAK="============================="
+          echo "DUMPING DEPLOYMENT INFORMATION"
+          sleep 30
+          echo statefulset: $(kubectl get statefulsets -n perseus)
+          echo $BREAK
+          POD=$(kubectl get pods --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' -n perseus)
+          echo "Running pod: $POD"
+          echo $BREAK
+          kubectl describe pod $POD -n perseus
+          echo $BREAK
+          kubectl logs $POD --tail=15 -n perseus

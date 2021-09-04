@@ -1,0 +1,39 @@
+name:  Terraform CI
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  
+  tests:
+
+    name:  Terraform validation tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout out TF code
+        uses: actions/checkout@v2
+
+      - name: Validate terraform
+        run: |
+          terraform init
+          terraform validate
+
+      - name: Format module terraform
+        uses: dflook/terraform-fmt@v1
+        with:
+          path: ./tf-iam
+
+      - name:  Format main Terraform
+        uses: dflook/terraform-fmt@v1
+        with:
+          path: /
+
+      - name: Create pull request to update formatting
+        uses: peter-evans/create-pull-request@v3
+        with:
+          commit-message: terraform fmt
+          title: Reformat terraform files
+          body: Updated terraform files format
+          branch: automated-terraform-fmt

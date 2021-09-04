@@ -1,0 +1,9 @@
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: perseus
+  name:  litecoin-service
+spec:
+  selector:
+    app:  litecoin
+  clusterIP: None
