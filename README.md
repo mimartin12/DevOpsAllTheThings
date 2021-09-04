@@ -12,13 +12,28 @@ Technology used:
 - GitHub Actions
 - CLI tooling (YQ)
 
+#### Contents
+
+```shell
+DevOpsAllTheThings
+├── Dockerfile
+├── README.md
+├── litecoin.namespace.yaml
+├── litecoin.service.yaml
+├── litecoin.statefulset.yaml
+├── main.tf
+└── tf-iam
+    ├── ci-iam.tf
+    └── variables.tf
+```
+
 ---
 
-This repository currently holds Kubernetes, Docker, and Terraform deployments. 
+This repository currently holds Kubernetes, Docker, and Terraform deployments.
 
 ### Dockerfile
 
-The `Dockerfile` builds a container that runs the Litecoin daemon in a container.
+The `Dockerfile` builds a container that runs the Litecoin daemon.
 
 ### Kubernetes 
 
@@ -30,20 +45,18 @@ Inside the `tf-iam` folder is a Terraform module that is invoked by the `main.tf
 
 ## CI <a name = "ci"></a>
 
-Two Github actions jobs exist around this project. 
+Two Github actions jobs exist around this project.
 
 `conatiner-ci-cd.yml` contains two stages.
 
-- The build stage is responsible for building, scanning, and pushing the container to a public repository. 
+- The build stage is responsible for building, scanning, and pushing the container to a public repository.
 - The deploy stage spins up Kubernetes cluster using K3d and deploys the kubernetes manifests in this repo to the cluster. At the end of the job, there is some `echo` commands that dumps out information around the deployment.
 
     > *I ended up using `YQ` to do some text manipulation to update the `image:` value with the newly tagged image that was built in the previous job.*
 
-`terraform-ci.yml` contains a single stage. 
+`terraform-ci.yml` contains a single stage.
 
 - It runs a `terraform validate` against the terraform in this repo. If that passes, it will run a step that formats the terraform code and creates a PR to resolve any formatting issues. This keeps the terraform code in this repo in a clean state.
-
-
 
 ## Documentation <a name = "docs"></a>
 
