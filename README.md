@@ -7,7 +7,7 @@
 
 Just a repo to showcase and test various DevOps things and tools.
 
-Technology used:
+Technologies used:
 - Kubernetes
 - Docker
 - Terraform
