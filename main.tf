@@ -11,11 +11,12 @@ provider "aws" {
 }
 
 
+# Call the CI IAM module
 module "ci-iam" {
   source = "./tf-iam"
   prefix = "prod"
   tags = {
     "Module" = "iam",
-    "Owner" = "Sr. Dev"
+    "Owner"  = "Sr. Dev"
   }
 }
